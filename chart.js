@@ -5,24 +5,74 @@ function buildChart(selector, data) {
 }
 
 function getSVG(data) {
-    const yaxis = "<line x1='0' y1='0' x2='0' y2='200' stroke='black' width='10' />";
-    const xaxis = "<line x1='0' y1='200' x2='300' y2='200' stroke='black' width='10' />";
-    const lines = `
-        <line x1='20' y1='59' x2='40' y2='78' stroke='black' width='10' />
-        <line x1='40' y1='78' x2='60' y2='118' stroke='black' width='10' />
-        <line x1='60' y1='118' x2='80' y2='109' stroke='black' width='10' />
-        <line x1='80' y1='109' x2='100' y2='17' stroke='black' width='10' />
-        <line x1='100' y1='17' x2='170' y2='55' stroke='black' width='10' />
-    `;
+    const CHART_HEIGHT = 200;
+    const CHART_WIDTH = 300;
+    
+    let xMin, yMin, xMax, yMax;
+    data.forEach(coordinates => {
+        const { x, y } = coordinates;
+        if (xMin === undefined || x < xMin) { xMin = x; }
+        if (xMax === undefined || x > xMax) { xMax = x; }
+        if (yMin === undefined || y < yMin) { yMin = y; }
+        if (yMax === undefined || y > yMax) { yMax = y; }
+    });
+
+    const normalizedData = data.map(({ x, y }) => {
+        return {
+            x: normalizeCoordinate(xMin, xMax, x, CHART_WIDTH, false),
+            y: normalizeCoordinate(yMin, yMax, y, CHART_HEIGHT, true),
+        };
+    });
+
+    let lines = [];
+    let lineString, x1, x2, y1, y2;
+    for (let i = 0; i < (normalizedData.length - 1); i++) {
+        x1 = normalizedData[i].x;
+        y1 = normalizedData[i].y;
+        x2 = normalizedData[i + 1].x;
+        y2 = normalizedData[i + 1].y;
+        lineString = `<line x1=${x1} y1=${y1} x2=${x2} y2=${y2} stroke='black' width='10' />`;
+        lines.push(lineString);
+    }
+
     const svg = `
-        <svg width=300 height=200>
-            ${xaxis}
-            ${yaxis}
-            ${lines}
+        <svg width=${CHART_WIDTH} height=${CHART_HEIGHT}>
+            ${lines.join(' ')}
         </svg>
     `;
 
     return svg;
 }
 
-buildChart('#chart', []);
+function normalizeCoordinate(min, max, value, size, isVertical) {
+    const proportion = Math.abs( (value - min) / (max - min) );
+    const coordinate = isVertical ? ((1 - proportion) * size) : (proportion * size);
+    return coordinate;
+}
+
+const lineData = [
+    { x: 5, y: 12 },
+    { x: 7, y: -7 },
+    { x: 12, y: 2 },
+    { x: 13, y: 4 },
+    { x: 15, y: 23 },
+    { x: 20, y: 15 },
+    { x: 22, y: 37 },
+    { x: 24, y: 35 },
+];
+
+
+const randomCount = 30;
+
+function getRandom(range) {
+    return range * (Math.random() - 0.5);
+}
+
+const randomData = [];
+for (let i = 0; i < randomCount; i++) {
+    randomData.push({ x: getRandom(100), y: getRandom(100) });
+}
+
+randomData.sort((a, b) => { return a.x < b.x ? -1 : 1; });
+
+buildChart('#chart', randomData);
