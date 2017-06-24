@@ -35,9 +35,13 @@ function getSVG(data) {
         lines.push(lineString);
     }
 
+    const xAxis = getXAxis(xMin, xMax, CHART_WIDTH, CHART_HEIGHT);
+    const yAxis = getYAxis(yMin, yMax, CHART_WIDTH, CHART_HEIGHT);
     const svg = `
         <svg width=${CHART_WIDTH} height=${CHART_HEIGHT}>
             ${lines.join(' ')}
+            ${xAxis}
+            ${yAxis}
         </svg>
     `;
 
@@ -48,6 +52,30 @@ function normalizeCoordinate(min, max, value, size, isVertical) {
     const proportion = Math.abs( (value - min) / (max - min) );
     const coordinate = isVertical ? ((1 - proportion) * size) : (proportion * size);
     return coordinate;
+}
+
+function getXAxis(min, max, width, height) {
+    let axisHeight;
+
+    if (max < 0) { axisHeight = max; }
+    else if (min > 0) { axisHeight = min; }
+    else { axisHeight = 0; }
+
+    const normalizedHeight = normalizeCoordinate(min, max, axisHeight, width, false);
+
+    return `<line x1=0 y1=${normalizedHeight} x2=${width} y2=${normalizedHeight} stroke='black' width=10 />`;
+}
+
+function getYAxis(min, max, width, height) {
+    let axisWidth;
+
+    if (max < 0) { axisWidth = max; }
+    else if (min > 0) { axisWidth = min; }
+    else { axisWidth = 0; }
+
+    const normalizedWidth = normalizeCoordinate(min, max, axisWidth, width, true);
+
+    return `<line x1=${normalizedWidth} y1=0 x2=${normalizedWidth} y2=${height} stroke='black' width=10 />`;
 }
 
 const lineData = [
