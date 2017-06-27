@@ -164,5 +164,10 @@ function buildBarChart(selector, data) {
     element.innerHTML = svg;
 }
 
-const data = [ 12, 2, -3, 5, -11 ];
+const data = [];
+
+for (let i = 0; i < 25; i++) {
+    data.push(getRandom(100));
+}
+
 buildBarChart('#bar-chart', data);
