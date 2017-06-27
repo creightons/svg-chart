@@ -109,65 +109,73 @@ buildChart('#chart', randomData);
 const BAR_HEIGHT = 300;
 const BAR_WIDTH = 400;
 
-function buildBarChart(selector, data) {
-    let max, min;
-    data.forEach(val => {
-        if (!max || val > max) { max = val; }
-        if (!min || val < min) { min = val; }
-    });
 
-    const range = Math.abs(max - min);
-    const count = data.length;
+class BarChart {
+    constructor(selector, data) {
+        this.selector = selector;
+        this.el = document.querySelector(this.selector);
+        this.data = data;
+        this.draw();
+        this.addListeners();
+    }
 
-    const barSlotWidth = BAR_WIDTH / count;
-    const barWidth = barSlotWidth * 0.7;
-    const barGap =  barSlotWidth * 0.15;
+    draw() {
+        let max, min;
+        this.data.forEach(val => {
+            if (!max || val > max) { max = val; }
+            if (!min || val < min) { min = val; }
+        });
 
-    let yAxisHeight;
+        const range = Math.abs(max - min);
+        const count = this.data.length;
 
-    if (max < 0) { yAxisHeight = 0; }
-    else if (min > 0) { yAxisHeight = BAR_HEIGHT; }
-    else { yAxisHeight = ( max / range ) * BAR_HEIGHT; }
+        const barSlotWidth = BAR_WIDTH / count;
+        const barWidth = barSlotWidth * 0.7;
+        const barGap =  barSlotWidth * 0.15;
+        const color = 'crimson';
 
-    const xAxis = `<line x1=0 y1=0 x2=0 y2=${BAR_HEIGHT} stroke=black width=10></line>`;
-    const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${BAR_WIDTH} y2=${yAxisHeight} stroke=black width=10></line>`;
-    
-    const bars = data.map((value, index) => {
-        let height;
-        if (max < 0) { height = (value / min) * BAR_HEIGHT; }
-        else if (min > 0) { height = (value / max) * BAR_HEIGHT; }
-        else { height = (value / range) * BAR_HEIGHT; }
-        height = Math.abs(height);
+        let yAxisHeight;
 
-        let yOffset, xOffset;
-        if (min > 0) { yOffset = BAR_HEIGHT - height; }
-        else if (max < 0) { yOffset = 0; }
-        else if (value > 0) { yOffset = yAxisHeight - height; }
-        else { yOffset = yAxisHeight; }
+        if (max < 0) { yAxisHeight = 0; }
+        else if (min > 0) { yAxisHeight = BAR_HEIGHT; }
+        else { yAxisHeight = ( max / range ) * BAR_HEIGHT; }
 
-        xOffset = (index * barSlotWidth) + barGap;
+        const xAxis = `<line x1=0 y1=0 x2=0 y2=${BAR_HEIGHT} stroke=black width=10></line>`;
+        const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${BAR_WIDTH} y2=${yAxisHeight} stroke=black width=10></line>`;
 
-        return `<rect x=${xOffset} y=${yOffset} width=${barWidth} height=${height} />`;
-    }).join('');
+        const bars = this.data.map((value, index) => {
+            let height;
+            if (max < 0) { height = (value / min) * BAR_HEIGHT; }
+            else if (min > 0) { height = (value / max) * BAR_HEIGHT; }
+            else { height = (value / range) * BAR_HEIGHT; }
+            height = Math.abs(height);
 
+            let yOffset, xOffset;
+            if (min > 0) { yOffset = BAR_HEIGHT - height; }
+            else if (max < 0) { yOffset = 0; }
+            else if (value > 0) { yOffset = yAxisHeight - height; }
+            else { yOffset = yAxisHeight; }
 
-    const svg = `
-        <svg width=${BAR_WIDTH} height=${BAR_HEIGHT}>
-            ${xAxis}
-            ${yAxis}
-            ${bars}
-        </svg>
-    `;
+            xOffset = (index * barSlotWidth) + barGap;
 
+            return `<rect x=${xOffset} y=${yOffset} width=${barWidth} height=${height} fill='${color}' stroke='${color}'/>`;
+        }).join('');
 
-    const element = document.querySelector(selector);
-    element.innerHTML = svg;
+        const svg = `
+            <svg width=${BAR_WIDTH} height=${BAR_HEIGHT}>
+                ${xAxis}
+                ${yAxis}
+                ${bars}
+            </svg>
+        `;
+
+        this.el.innerHTML = svg;
+    }
 }
 
 const data = [];
-
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 10; i++) {
     data.push(getRandom(100));
 }
 
-buildBarChart('#bar-chart', data);
+const barChart = new BarChart('#bar-chart', data);
