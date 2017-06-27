@@ -105,21 +105,21 @@ randomData.sort((a, b) => { return a.x < b.x ? -1 : 1; });
 
 buildChart('#chart', randomData);
 
-
-const BAR_HEIGHT = 300;
-const BAR_WIDTH = 400;
-
-
 class BarChart {
     constructor(selector, data) {
         this.selector = selector;
         this.el = document.querySelector(this.selector);
         this.data = data;
-        this.draw();
+        const { width, height } = this.getParentDimensions();
+        this.width = width || 300;
+        this.height = height || 300;
         this.addListeners();
+
+        this.draw();
     }
 
     draw() {
+        const self = this;
         let max, min;
         this.data.forEach(val => {
             if (!max || val > max) { max = val; }
@@ -129,7 +129,7 @@ class BarChart {
         const range = Math.abs(max - min);
         const count = this.data.length;
 
-        const barSlotWidth = BAR_WIDTH / count;
+        const barSlotWidth = self.width / count;
         const barWidth = barSlotWidth * 0.7;
         const barGap =  barSlotWidth * 0.15;
         const color = 'crimson';
@@ -137,21 +137,21 @@ class BarChart {
         let yAxisHeight;
 
         if (max < 0) { yAxisHeight = 0; }
-        else if (min > 0) { yAxisHeight = BAR_HEIGHT; }
-        else { yAxisHeight = ( max / range ) * BAR_HEIGHT; }
+        else if (min > 0) { yAxisHeight = self.height; }
+        else { yAxisHeight = ( max / range ) * self.height; }
 
-        const xAxis = `<line x1=0 y1=0 x2=0 y2=${BAR_HEIGHT} stroke=black width=10></line>`;
-        const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${BAR_WIDTH} y2=${yAxisHeight} stroke=black width=10></line>`;
+        const xAxis = `<line x1=0 y1=0 x2=0 y2=${self.height} stroke=black width=10></line>`;
+        const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${self.width} y2=${yAxisHeight} stroke=black width=10></line>`;
 
         const bars = this.data.map((value, index) => {
             let height;
-            if (max < 0) { height = (value / min) * BAR_HEIGHT; }
-            else if (min > 0) { height = (value / max) * BAR_HEIGHT; }
-            else { height = (value / range) * BAR_HEIGHT; }
+            if (max < 0) { height = (value / min) * self.height; }
+            else if (min > 0) { height = (value / max) * self.height; }
+            else { height = (value / range) * self.height; }
             height = Math.abs(height);
 
             let yOffset, xOffset;
-            if (min > 0) { yOffset = BAR_HEIGHT - height; }
+            if (min > 0) { yOffset = self.height - height; }
             else if (max < 0) { yOffset = 0; }
             else if (value > 0) { yOffset = yAxisHeight - height; }
             else { yOffset = yAxisHeight; }
@@ -162,7 +162,7 @@ class BarChart {
         }).join('');
 
         const svg = `
-            <svg width=${BAR_WIDTH} height=${BAR_HEIGHT}>
+            <svg width=${self.width} height=${self.height}>
                 ${xAxis}
                 ${yAxis}
                 ${bars}
@@ -170,6 +170,15 @@ class BarChart {
         `;
 
         this.el.innerHTML = svg;
+    }
+
+    addListeners() {
+        // TODO: Listen for changes to viewport size and redraw
+    }
+
+    getParentDimensions() {
+        const { width, height } = this.el.parentElement.getBoundingClientRect();
+        return { width, height };
     }
 }
 
