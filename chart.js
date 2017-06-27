@@ -109,7 +109,7 @@ buildChart('#chart', randomData);
 const BAR_HEIGHT = 300;
 const BAR_WIDTH = 400;
 
-function buildBarChart(selector, labels, data) {
+function buildBarChart(selector, data) {
     let max, min;
     data.forEach(val => {
         if (!max || val > max) { max = val; }
@@ -119,8 +119,9 @@ function buildBarChart(selector, labels, data) {
     const range = Math.abs(max - min);
     const count = data.length;
 
-    const barWidth = ( BAR_WIDTH / count ) * 0.7;
-    const barGap =  ( BAR_WIDTH / count ) * 0.15;
+    const barSlotWidth = BAR_WIDTH / count;
+    const barWidth = barSlotWidth * 0.7;
+    const barGap =  barSlotWidth * 0.15;
 
     let yAxisHeight;
 
@@ -128,6 +129,7 @@ function buildBarChart(selector, labels, data) {
     else if (min > 0) { yAxisHeight = BAR_HEIGHT; }
     else { yAxisHeight = ( max / range ) * BAR_HEIGHT; }
 
+    const xAxis = `<line x1=0 y1=0 x2=0 y2=${BAR_HEIGHT} stroke=black width=10></line>`;
     const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${BAR_WIDTH} y2=${yAxisHeight} stroke=black width=10></line>`;
     
     const bars = data.map((value, index) => {
@@ -143,7 +145,7 @@ function buildBarChart(selector, labels, data) {
         else if (value > 0) { yOffset = yAxisHeight - height; }
         else { yOffset = yAxisHeight; }
 
-        xOffset = (index * (barWidth / 2)) + barGap;
+        xOffset = (index * barSlotWidth) + barGap;
 
         return `<rect x=${xOffset} y=${yOffset} width=${barWidth} height=${height} />`;
     }).join('');
@@ -151,6 +153,7 @@ function buildBarChart(selector, labels, data) {
 
     const svg = `
         <svg width=${BAR_WIDTH} height=${BAR_HEIGHT}>
+            ${xAxis}
             ${yAxis}
             ${bars}
         </svg>
@@ -161,6 +164,5 @@ function buildBarChart(selector, labels, data) {
     element.innerHTML = svg;
 }
 
-const labels = [ 'a', 'b', 'c', 'd', 'e' ];
 const data = [ 12, 2, -3, 5, -11 ];
-buildBarChart('#bar-chart', labels, data);
+buildBarChart('#bar-chart', data);
