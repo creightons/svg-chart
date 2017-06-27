@@ -104,3 +104,63 @@ for (let i = 0; i < randomCount; i++) {
 randomData.sort((a, b) => { return a.x < b.x ? -1 : 1; });
 
 buildChart('#chart', randomData);
+
+
+const BAR_HEIGHT = 300;
+const BAR_WIDTH = 400;
+
+function buildBarChart(selector, labels, data) {
+    let max, min;
+    data.forEach(val => {
+        if (!max || val > max) { max = val; }
+        if (!min || val < min) { min = val; }
+    });
+
+    const range = Math.abs(max - min);
+    const count = data.length;
+
+    const barWidth = ( BAR_WIDTH / count ) * 0.7;
+    const barGap =  ( BAR_WIDTH / count ) * 0.15;
+
+    let yAxisHeight;
+
+    if (max < 0) { yAxisHeight = 0; }
+    else if (min > 0) { yAxisHeight = BAR_HEIGHT; }
+    else { yAxisHeight = ( max / range ) * BAR_HEIGHT; }
+
+    const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${BAR_WIDTH} y2=${yAxisHeight} stroke=black width=10></line>`;
+    
+    const bars = data.map((value, index) => {
+        let height;
+        if (max < 0) { height = (value / min) * BAR_HEIGHT; }
+        else if (min > 0) { height = (value / max) * BAR_HEIGHT; }
+        else { height = (value / range) * BAR_HEIGHT; }
+        height = Math.abs(height);
+
+        let yOffset, xOffset;
+        if (min > 0) { yOffset = BAR_HEIGHT - height; }
+        else if (max < 0) { yOffset = 0; }
+        else if (value > 0) { yOffset = yAxisHeight - height; }
+        else { yOffset = yAxisHeight; }
+
+        xOffset = (index * (barWidth / 2)) + barGap;
+
+        return `<rect x=${xOffset} y=${yOffset} width=${barWidth} height=${height} />`;
+    }).join('');
+
+
+    const svg = `
+        <svg width=${BAR_WIDTH} height=${BAR_HEIGHT}>
+            ${yAxis}
+            ${bars}
+        </svg>
+    `;
+
+
+    const element = document.querySelector(selector);
+    element.innerHTML = svg;
+}
+
+const labels = [ 'a', 'b', 'c', 'd', 'e' ];
+const data = [ 12, 2, -3, 5, -11 ];
+buildBarChart('#bar-chart', labels, data);
