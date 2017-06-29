@@ -133,25 +133,27 @@ class BarChart {
         const barWidth = barSlotWidth * 0.7;
         const barGap =  barSlotWidth * 0.15;
         const color = 'crimson';
+        const chartHeight = 0.8 * self.height;
+        const labelHeight = 0.8 * self.height;
 
         let yAxisHeight;
 
         if (max < 0) { yAxisHeight = 0; }
-        else if (min > 0) { yAxisHeight = self.height; }
-        else { yAxisHeight = ( max / range ) * self.height; }
+        else if (min > 0) { yAxisHeight = chartHeight; }
+        else { yAxisHeight = ( max / range ) * chartHeight; }
 
-        const xAxis = `<line x1=0 y1=0 x2=0 y2=${self.height} stroke=black width=10></line>`;
-        const yAxis = `<line x1=${0} y1=${yAxisHeight} x2=${self.width} y2=${yAxisHeight} stroke=black width=10></line>`;
+        const xAxis = `<line x1=${0} y1=${yAxisHeight} x2=${self.width} y2=${yAxisHeight} stroke=black width=10></line>`;
+        const yAxis = `<line x1=0 y1=0 x2=0 y2=${chartHeight} stroke=black width=10></line>`;
 
         const bars = this.data.map((value, index) => {
             let height;
-            if (max < 0) { height = (value / min) * self.height; }
-            else if (min > 0) { height = (value / max) * self.height; }
-            else { height = (value / range) * self.height; }
+            if (max < 0) { height = (value / min) * chartHeight; }
+            else if (min > 0) { height = (value / max) * chartHeight; }
+            else { height = (value / range) * chartHeight; }
             height = Math.abs(height);
 
             let yOffset, xOffset;
-            if (min > 0) { yOffset = self.height - height; }
+            if (min > 0) { yOffset = chartHeight - height; }
             else if (max < 0) { yOffset = 0; }
             else if (value > 0) { yOffset = yAxisHeight - height; }
             else { yOffset = yAxisHeight; }
@@ -161,11 +163,22 @@ class BarChart {
             return `<rect x=${xOffset} y=${yOffset} width=${barWidth} height=${height} fill='${color}' stroke='${color}'/>`;
         }).join('');
 
+        const labels = [];
+        for (let i = 0; i < count; i++) {
+            labels.push(String.fromCharCode(i + 65));
+        }
+
+        const labelElements = labels.map((label, index) => {
+            const xOffset = barSlotWidth * (index + 0.5);
+            return `<text x=${xOffset} y=${labelHeight} font-size=16>${label}</text>`;
+        });
+
         const svg = `
-            <svg width=${self.width} height=${self.height}>
+            <svg width=${self.width} height=${chartHeight}>
                 ${xAxis}
                 ${yAxis}
                 ${bars}
+                ${labelElements.join('')}
             </svg>
         `;
 
