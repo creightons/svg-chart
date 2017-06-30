@@ -134,7 +134,7 @@ class BarChart {
         const barGap =  barSlotWidth * 0.15;
         const color = 'crimson';
         const chartHeight = 0.8 * self.height;
-        const labelHeight = 0.8 * self.height;
+        const labelHeight = 0.92 * self.height;
 
         let yAxisHeight;
 
@@ -174,11 +174,11 @@ class BarChart {
         });
 
         const svg = `
-            <svg width=${self.width} height=${chartHeight}>
+            <svg width=${self.width} height=${self.height}>
                 ${xAxis}
                 ${yAxis}
-                ${bars}
-                ${labelElements.join('')}
+                <g>${bars}</g>
+                <g>${labelElements.join('')}</g>
             </svg>
         `;
 
