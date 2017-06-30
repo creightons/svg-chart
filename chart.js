@@ -110,11 +110,7 @@ class BarChart {
         this.selector = selector;
         this.el = document.querySelector(this.selector);
         this.data = data;
-        const { width, height } = this.getParentDimensions();
-        this.width = width || 300;
-        this.height = height || 300;
         this.addListeners();
-
         this.draw();
     }
 
@@ -126,15 +122,16 @@ class BarChart {
             if (!min || val < min) { min = val; }
         });
 
+        const { height: parentHeight, width: parentWidth } = this.getParentDimensions();
         const range = Math.abs(max - min);
         const count = this.data.length;
 
-        const barSlotWidth = self.width / count;
+        const barSlotWidth = parentWidth / count;
         const barWidth = barSlotWidth * 0.7;
         const barGap =  barSlotWidth * 0.15;
         const color = 'crimson';
-        const chartHeight = 0.8 * self.height;
-        const labelHeight = 0.92 * self.height;
+        const chartHeight = 0.8 * parentHeight;
+        const labelHeight = 0.92 * parentHeight;
 
         let yAxisHeight;
 
@@ -142,7 +139,7 @@ class BarChart {
         else if (min > 0) { yAxisHeight = chartHeight; }
         else { yAxisHeight = ( max / range ) * chartHeight; }
 
-        const xAxis = `<line x1=${0} y1=${yAxisHeight} x2=${self.width} y2=${yAxisHeight} stroke=black width=10></line>`;
+        const xAxis = `<line x1=${0} y1=${yAxisHeight} x2=${parentWidth} y2=${yAxisHeight} stroke=black width=10></line>`;
         const yAxis = `<line x1=0 y1=0 x2=0 y2=${chartHeight} stroke=black width=10></line>`;
 
         const bars = this.data.map((value, index) => {
@@ -174,7 +171,7 @@ class BarChart {
         });
 
         const svg = `
-            <svg width=${self.width} height=${self.height}>
+            <svg width=${parentWidth} height=${parentHeight}>
                 ${xAxis}
                 ${yAxis}
                 <g>${bars}</g>
@@ -187,6 +184,16 @@ class BarChart {
 
     addListeners() {
         // TODO: Listen for changes to viewport size and redraw
+        const update = this.update.bind(this);
+        window.addEventListener('resize', update);
+    }
+
+    update() {
+        const svg = this.el.querySelector('svg');
+        if (svg) {
+            this.el.removeChild(svg);
+        }
+        this.draw();
     }
 
     getParentDimensions() {
