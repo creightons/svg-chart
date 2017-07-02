@@ -9,6 +9,11 @@ const  _BaseChart = {
         this.draw();
     },
 
+    getParentDimensions() {
+        const { width, height } = this.el.parentElement.getBoundingClientRect();
+        return { width, height };
+    },
+
     attachSVG() {
         this.svg = document.createElementNS(SVG_NAMESPACE, 'svg');
         const width = '100%';
