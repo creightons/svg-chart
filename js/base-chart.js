@@ -10,7 +10,7 @@ const  _BaseChart = {
     },
 
     getParentDimensions() {
-        const { width, height } = this.el.parentElement.getBoundingClientRect();
+        const { width, height } = this.el.getBoundingClientRect();
         return { width, height };
     },
 
