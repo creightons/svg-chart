@@ -1,5 +1,6 @@
 import BarChart from './bar-chart';
 import LineChart from './line-chart';
+import PieChart from './pie-chart';
 
 
 function getRandom(range) {
@@ -21,3 +22,4 @@ for (let i = 0; i < 20; i++) {
 
 const lineChart = LineChart('#chart', lineData);
 const barChart = BarChart('#bar-chart', barData);
+const pieChart = PieChart('#pie-chart', []);
